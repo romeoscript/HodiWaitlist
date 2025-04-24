@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 8 28% 44%;
+    --card: 0 0% 100%;
+    --card-foreground: 8 28% 44%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 8 28% 44%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 0 0 100%;
+    --foreground: 210 40% 98%;
+    --card: 76 26% 52%;
+    --card-foreground: 210 40% 98%;
+    --popover: 76 26% 52%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 76 26% 52%;
+    --primary-foreground: 0 0 100%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 76 26% 52%;
+    --muted-foreground: 21 26% 52%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 21 24% 52%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 76 26% 52%;
+  }
+
+  .body-background {
+    background-image: url("/images/beamitx.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+  }
+
+  .button-hover:hover {
+    background-color: #f1efe7; /* Dark Purple */
+  }
+
+  .task-row-hover:hover {
+    background-color: #f1efe7;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
