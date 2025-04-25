@@ -10,8 +10,8 @@ import Head from "next/head";
 import SolanaProvider from "./solanaProvider";
 
 export const metadata: Metadata = {
-  title: "Sprout waitlist",
-  description: "Book your spot for priority access to Sprout.",
+  title: "HODI waitlist",
+  description: "Book your spot for priority access to HODI.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -36,7 +36,9 @@ export default async function RootLayout({
         >
           <Suspense
             fallback={
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-points"></div>
+              <div className="flex items-center justify-center h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-hodi-yellow"></div>
+              </div>
             }
           >
             <main
@@ -45,15 +47,14 @@ export default async function RootLayout({
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundRepeat: "no-repeat",
+                backgroundImage: "url('/images/beamitx.jpg')",
                 width: "100vw",
-                // height: "105vh",
               }}
             >
               <Header />
               <SolanaProvider>
                 {children}
               </SolanaProvider>
-
             </main>
           </Suspense>
           <Toaster />

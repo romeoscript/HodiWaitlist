@@ -55,8 +55,10 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
     width: 100vw;
-    height: 100vh;
-    overflow: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: 2rem;
   }
 
   .button-hover:hover {
@@ -76,3 +78,36 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+
+
+  @keyframes float {
+    0% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-20px) scale(1.05); }
+    100% { transform: translateY(0px) scale(1); }
+  }
+  
+  .animate-float {
+    animation: float 15s ease-in-out infinite;
+  }
+
+  /* @font-face {
+    font-family: 'Space Grotesk';
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+    src: url(https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap);
+  }
+  
+  .font-space-grotesk {
+    font-family: 'Space Grotesk', sans-serif;
+  } */
+
+  /* Add to your existing globals.css
+  :root {
+    --yellow-primary: #f59e0b;
+    --yellow-secondary: #fbbf24;
+    --background-dark: #0f0f0f;
+    --card-bg: rgba(30, 30, 30, 0.6);
+  } */

@@ -264,18 +264,18 @@ https://citizens.sproutmarketing.xyz/?ref=${userData?.invitation_code}`;
       await setIsTwitterIIFollowed(
         fetchedPointsList?.some(
           // (point) => point.note === "Follow Galaxy.do on Twitter"
-          (point) => point.note === "Follow Sprout SMM on Twitter"
+          (point) => point.note === "Follow $HODI on Twitter"
         ) || false
       );
       await setIsTwitterIIIFollowed(
         fetchedPointsList?.some(
           // (point) => point.note === "Follow Galaxy.do on Twitter"
-          (point) => point.note === "Follow Ares Sprout on Twitter"
+          (point) => point.note === "Follow Cat Cartel on Twitter"
         ) || false
       );
       await setIsDiscordJoined(
         fetchedPointsList?.some(
-          (point) => point.note === "Joined Discord Sprout Citizens"
+          (point) => point.note === "Joined Discord Cat Cartel"
         ) || false
       );
       await setIsTelegramJoined(

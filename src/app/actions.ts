@@ -274,7 +274,7 @@ export async function fetchTwitterIIFollowed() {
     .from("points")
     .select("note")
     .eq("account_id", user.id)
-    .eq("note", "Follow Sprout SMM on Twitter");
+    .eq("note", "Follow $HODI on Twitter");
 
   if (fetchError) {
     console.error("Error fetching note", error);
@@ -291,7 +291,7 @@ export async function fetchTwitterIIIFollowed() {
     .from("points")
     .select("note")
     .eq("account_id", user.id)
-    .eq("note", "Follow Ares Sprout on Twitter");
+    .eq("note", "Follow Cat Cartel on Twitter");
 
   if (fetchError) {
     console.error("Error fetching note", error);
@@ -329,7 +329,7 @@ export async function twitterPoints() {
     .insert({
       account_id: user.id,
       amount: TWITTER_FOLLOW_POINTS,
-      note: "Follow Sprout Citizens on Twitter",
+      note: "Follow $HODI on Twitter",
     });
 
   const { error: increasePointsError } = await serviceSupabase
@@ -403,7 +403,7 @@ export async function twitterIIPoints() {
     .insert({
       account_id: user.id,
       amount: TWITTER_FOLLOW_POINTS,
-      note: "Follow Sprout SMM on Twitter",
+      note: "Follow Cat Cartel on Twitter",
     });
   
     const { error: increasePointsError } = await serviceSupabase
@@ -478,7 +478,7 @@ export async function twitterIIIPoints() {
     .insert({
       account_id: user.id,
       amount: TWITTER_FOLLOW_POINTS,
-      note: "Follow Ares Sprout on Twitter",
+      note: "Follow Cat Cartel on Twitter",
     });
   
     const { error: increasePointsError } = await serviceSupabase
@@ -532,7 +532,7 @@ export async function fetchDiscordJoined() {
     .from("points")
     .select("note")
     .eq("account_id", user.id)
-    .eq("note", "Joined Discord Sprout Citizens");
+    .eq("note", "Joined Discord Cat Cartel");
 
   if (fetchError) {
     console.error("Error fetching note", error);
@@ -571,7 +571,7 @@ export async function discordPoints() {
     .insert({
       account_id: user.id,
       amount: DISCORD_JOIN_POINTS,
-      note: "Joined Discord Sprout Citizens",
+      note: "Joined Discord Cat Cartel",
     });
 
     const { error: increasePointsError } = await serviceSupabase
