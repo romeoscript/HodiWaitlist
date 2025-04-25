@@ -63,6 +63,23 @@ const itemVariants = {
   visible: { y: 0, opacity: 1 }
 };
 
+interface UserData {
+  invitation_code: string;
+  points: number;
+  level: number;
+  total_points: number;
+  invited_accounts_count: number;
+  // Add other user data properties as needed
+}
+
+interface Point {
+  amount: number;
+  note: string;
+  created_at: string;
+}
+
+interface PointsList extends Array<Point> {}
+
 export default function TasksTab() {
   const [buttonText, setButtonText] = useState(COPY_BTN_TEXT);
   const [isTwitterFollowed, setIsTwitterFollowed] = useState(false);
@@ -73,9 +90,9 @@ export default function TasksTab() {
   const [isTelegramIIJoined, setIsTelegramIIJoined] = useState(false);
   const [isSolanaWalletConnected, setIsSolanaWalletConnected] = useState(false);
   const [showPoints, setShowPoints] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [pointsList, setPointsList] = useState(null);
+  const [pointsList, setPointsList] = useState<PointsList | null>(null);
   const [userPointsTotal, setUserPointsTotal] = useState(0);
   const { toast } = useToast();
   const { publicKey, connected, disconnect } = useWallet();
@@ -85,7 +102,7 @@ export default function TasksTab() {
 
   // Copy to clipboard with gamified feedback
   const copyToClipboard = async () => {
-    const link = document.getElementById("link-input");
+    const link = document.getElementById("link-input") as HTMLInputElement;
     if (link) {
       await navigator.clipboard.writeText(link.value);
       setButtonText("Copied!");
@@ -95,7 +112,7 @@ export default function TasksTab() {
       
       toast({
         title: "Link Copied!",
-        description: "Your $HODI Gang referral link is ready to share!",
+        description: "Your NFT waitlist referral link is ready to share!",
       });
       
       setTimeout(() => setButtonText(COPY_BTN_TEXT), 3000);
@@ -196,7 +213,7 @@ export default function TasksTab() {
   const [rewardMessage, setRewardMessage] = useState("");
   const [showReward, setShowReward] = useState(false);
   
-  const triggerRewardAnimation = (message) => {
+  const triggerRewardAnimation = (message: string) => {
     setRewardMessage(message);
     setShowReward(true);
     setTimeout(() => setShowReward(false), 3000);
@@ -239,14 +256,15 @@ export default function TasksTab() {
   }, [connected, publicKey, toast]);
 
   // Setup the share text
-  const shareText = `Just joined the $HODI gang on @hoditoken 🐱
+  const shareText = `Just joined the NFT waitlist 🎨
 
-  • The OG gangsta cat of crypto
-  • Limited collection with real utility
-  • Backed by a strong community
-  
-  Join me on the waitlist & earn points with my referral link:
-  https://hodi.xyz/?ref=${userData?.invitation_code}`;
+• Limited collection with real utility
+• Backed by a strong community
+• Early access to mint
+• Exclusive NFT rewards
+
+Join me on the waitlist & earn points with my referral link:
+https://nft.xyz/?ref=${userData?.invitation_code}`;
 
   const shareOnTwitter = () => {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -261,7 +279,7 @@ export default function TasksTab() {
 
   const shareOnTelegram = () => {
     const url = `https://t.me/share/url?url=${encodeURIComponent(
-      "hodi.xyz"
+      "nft.xyz"
     )}&text=${encodeURIComponent(shareText)}`;
     window.open(url, "_blank");
     toast({
@@ -386,7 +404,7 @@ export default function TasksTab() {
     return nextLevel - userData.total_points;
   };
 
-  const getLevelName = (level) => {
+  const getLevelName = (level: number): string => {
     switch(level) {
       case 1: return "Street Cat";
       case 2: return "Capo";
@@ -498,7 +516,7 @@ export default function TasksTab() {
                 transition={{ delay: 0.2 }}
               >
                 <CardTitle className="text-xl sm:text-3xl font-bold text-black">
-                  $HODI Gang
+                  NFT Waitlist
                 </CardTitle>
               </motion.div>
               <motion.div
@@ -749,7 +767,7 @@ export default function TasksTab() {
                  <Input
                    id="link-input"
                    type="text"
-                   defaultValue={`https://hodi.xyz/?ref=${userData?.invitation_code}`}
+                   defaultValue={`https://nft.xyz/?ref=${userData?.invitation_code}`}
                    readOnly
                    className="bg-gray-800 border-gray-700 text-white rounded-lg sm:rounded-l-lg sm:rounded-r-none text-xs sm:text-sm mb-2 sm:mb-0"
                  />
@@ -1195,19 +1213,19 @@ export default function TasksTab() {
                     <div className="inline-block p-2 rounded-full bg-yellow-400/20 mb-1 sm:mb-2">
                       <DollarSign size={18} className="text-yellow-400 sm:h-6 sm:w-6" />
                     </div>
-                    <div className="text-xs sm:text-sm font-medium">Token Rewards</div>
+                    <div className="text-xs sm:text-sm font-medium">NFT Rewards</div>
                   </div>
                   <div className="text-center p-2 sm:p-3 bg-black rounded-lg border border-yellow-400/20">
                     <div className="inline-block p-2 rounded-full bg-yellow-400/20 mb-1 sm:mb-2">
                       <Zap size={18} className="text-yellow-400 sm:h-6 sm:w-6" />
                     </div>
-                    <div className="text-xs sm:text-sm font-medium">Cat Airdrops</div>
+                    <div className="text-xs sm:text-sm font-medium">NFT Airdrops</div>
                   </div>
                   <div className="text-center p-2 sm:p-3 bg-black rounded-lg border border-yellow-400/20">
                     <div className="inline-block p-2 rounded-full bg-yellow-400/20 mb-1 sm:mb-2">
                       <Lock size={18} className="text-yellow-400 sm:h-6 sm:w-6" />
                     </div>
-                    <div className="text-xs sm:text-sm font-medium">Cartel Votes</div>
+                    <div className="text-xs sm:text-sm font-medium">Governance</div>
                   </div>
                 </motion.div>
                 
@@ -1221,14 +1239,14 @@ export default function TasksTab() {
                       className="text-white/70 text-xs sm:text-sm bg-black p-3 sm:p-4 rounded-lg border border-yellow-400/20"
                     >
                       <p className="mb-2 sm:mb-3">
-                        $HODI NFT holders will receive exclusive benefits in the Cat Cartel ecosystem:
+                        NFT holders will receive exclusive benefits in the ecosystem:
                       </p>
                       <ul className="space-y-1 sm:space-y-2 ml-3 sm:ml-4 list-disc">
                         <li>Priority access to future NFT launches</li>
-                        <li>Revenue share from Cartel marketing activities</li>
+                        <li>Revenue share from marketing activities</li>
                         <li>Access to private Discord channels and events</li>
                         <li>Staking rewards with passive income opportunities</li>
-                        <li>Token airdrops based on your level and referral activity</li>
+                        <li>NFT airdrops based on your level and referral activity</li>
                         <li>Voting rights on future project developments</li>
                       </ul>
                     </motion.div>
@@ -1271,7 +1289,7 @@ export default function TasksTab() {
                     </TableHeader>
                     <TableBody>
                       {pointsList && pointsList.length > 0 ? (
-                        pointsList.map((point, index) => (
+                        pointsList.map((point: Point, index: number) => (
                           <TableRow key={index} className="border-b border-gray-800 hover:bg-black/50">
                             <TableCell className="font-medium text-yellow-400 text-xs sm:text-sm p-2 sm:p-4">+{point.amount}</TableCell>
                             <TableCell className="text-white text-xs sm:text-sm p-2 sm:p-4">{point.note}</TableCell>
