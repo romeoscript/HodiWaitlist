@@ -74,8 +74,9 @@ const TwitterIIButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSuc
   const { toast } = useToast();
 
   const handleFollowClick = async () => {
+   
     setIsProcessing(true);
-    window.open('https://twitter.com/intent/follow?screen_name=hodifounder', '_blank');
+    window.open('https://twitter.com/intent/follow?screen_name=catcartel_xyz', '_blank');
     
     try {
       const success = await twitterIIPoints();

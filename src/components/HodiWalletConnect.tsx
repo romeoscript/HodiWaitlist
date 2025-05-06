@@ -8,7 +8,7 @@ import { CheckCircle2, Lock, Zap } from "lucide-react";
 import { savePrincipalId, fetchAccount } from "@/app/actions";
 
 // HODI token mint address (replace with the actual mint address)
-const HODI_TOKEN_MINT = new PublicKey("GHT5rrrAh5PxAxfP7vB3VnjPxeoxnVVDBVVQrgaVvbQ4");
+const HODI_TOKEN_MINT = new PublicKey("HodiZE88VH3SvRYYX2fE6zYE6SsxPn9xJUMUkW1Dg6A");
 
 // Define point structure based on token amounts
 const HODI_POINT_TIERS = [
@@ -42,7 +42,7 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
       console.log("Getting balance for:", walletAddress.toString());
       // Connect to Solana blockchain
       const connection = new Connection(
-        process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || "https://api.devnet.solana.com",
+        process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || "https://api.mainnet-beta.solana.com",
         "confirmed"
       );
       
