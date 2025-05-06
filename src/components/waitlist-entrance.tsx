@@ -130,7 +130,7 @@ export default function WaitlistEntrance() {
             className="rounded-full p-2 bg-black"
           >
             <Image 
-              src="/images/logo.png" 
+              src="/images/logo.jpg" 
               alt="HODI" 
               width={180} 
               height={180}
@@ -292,11 +292,11 @@ export default function WaitlistEntrance() {
                   className="w-full"
                 >
                   <Image
-                    src="/images/logo.png"
+                    src="/images/logo.jpg"
                     alt="HODI"
                     width={140}
                     height={140}
-                    className="rounded-full shadow-[0_0_20px_rgba(255,215,0,0.5)] border-4 border-yellow-400"
+                    className="rounded-full m-auto shadow-[0_0_20px_rgba(255,215,0,0.5)] border-4 border-yellow-400"
                   />
                 </motion.div>
               </motion.div>
@@ -361,7 +361,7 @@ export default function WaitlistEntrance() {
                       className="mr-3 group-hover:rotate-12 transition-all duration-300"
                     />
                     <span className="text-lg group-hover:tracking-wider transition-all duration-300">
-                      SIGN IN WITH TWITTER
+                      SIGN IN WITH X
                     </span>
                   </div>
                 </Button>

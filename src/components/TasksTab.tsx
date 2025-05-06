@@ -408,7 +408,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
     switch(level) {
       case 1: return "Street Cat";
       case 2: return "Capo";
-      case 3: return "Kingpin";
+      case 3: return "Big Boss ";
       default: return "Rookie";
     }
   };
@@ -704,7 +704,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                         </div>
                       </motion.div>
                     )}
-                    <div className="font-bold text-xs sm:text-sm">Kingpin</div>
+                    <div className="font-bold text-xs sm:text-sm">Big Boss </div>
                     <div className="text-[10px] sm:text-xs">50,000 pts</div>
                   </div>
                 </motion.div>
@@ -717,7 +717,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                 animate="visible"
                 className="mb-5 sm:mb-8 bg-gradient-to-b from-gray-900 to-black p-3 sm:p-6 rounded-xl border border-yellow-400/30"
               >
-                <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <motion.div variants={itemVariants} className="flex gap-4 flex-col sm:flex-row sm:items-center sm:justify-between">
                   <div className="mb-3 sm:mb-0">
                     <div className="flex items-center">
                       <UserPlus className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400 mr-1 sm:mr-2" />
@@ -745,7 +745,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                      <span>Twitter</span>
                    </motion.button>
                    
-                   <motion.button
+                   {/* <motion.button
                      whileHover={{ scale: 1.05, backgroundColor: "#0077b5" }}
                      whileTap={{ scale: 0.95 }}
                      onClick={shareOnTelegram}
@@ -759,7 +759,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                        className="sm:w-4 sm:h-4"
                      />
                      <span>Telegram</span>
-                   </motion.button>
+                   </motion.button> */}
                  </div>
                </motion.div>
                
@@ -1137,7 +1137,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                    )}
                  </motion.div>
                  
-                 {/* Level 3 - Kingpin */}
+                 {/* Level 3 - Big Boss  */}
                  <motion.div 
                    variants={itemVariants}
                    whileHover={{ y: -5, boxShadow: "0 10px 15px -3px rgba(234, 179, 8, 0.3)" }}
@@ -1146,7 +1146,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                    }`}
                  >
                    <div className="flex justify-between items-center mb-2 sm:mb-3">
-                     <h4 className="font-bold text-sm sm:text-lg">Kingpin</h4>
+                     <h4 className="font-bold text-sm sm:text-lg">Big Boss </h4>
                      <div className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded bg-black text-white/70">Level 3</div>
                    </div>
                    <div className="text-white/70 text-[10px] sm:text-xs mb-2 sm:mb-3">Unlocks at 50,000 points</div>
@@ -1263,17 +1263,17 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
-                className="bg-gray-900 p-3 sm:p-5 rounded-xl border border-yellow-400/30"
+                className="bg-black bg-opacity-90 p-3 sm:p-5 rounded-xl border-2 border-yellow-400 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
               >
                 <motion.div variants={itemVariants} className="flex justify-between items-center mb-3 sm:mb-4">
                   <div>
                     <div className="flex items-center">
                       <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400 mr-1 sm:mr-2" />
-                      <h3 className="text-base sm:text-lg font-bold text-white">Points History</h3>
+                      <h3 className="text-base sm:text-lg font-bold text-yellow-400">Points History</h3>
                     </div>
                     <p className="text-white/70 text-[10px] sm:text-xs mt-0.5 sm:mt-1">Your recent points transactions</p>
                   </div>
-                  <div className="bg-black py-1 px-2 sm:px-3 rounded-full text-white font-bold border border-yellow-400/30 text-xs sm:text-base">
+                  <div className="bg-black py-1 px-2 sm:px-3 rounded-full text-white font-bold border border-yellow-400 text-xs sm:text-base">
                     <span className="text-yellow-400">{userPointsTotal}</span> points
                   </div>
                 </motion.div>
@@ -1287,7 +1287,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                         <TableHead className="text-yellow-400 font-bold text-xs sm:text-sm p-2 sm:p-4 hidden md:table-cell">Date</TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody className="bg-black">
                       {pointsList && pointsList.length > 0 ? (
                         pointsList.map((point: Point, index: number) => (
                           <TableRow key={index} className="border-b border-gray-800 hover:bg-black/50">

@@ -131,37 +131,35 @@ export default function LeaderboardTab() {
   }
 
   return (
-    <Card>
+    <Card className="bg-black bg-opacity-90 border-2 border-yellow-400 shadow-[0_0_15px_rgba(255,215,0,0.3)]">
       <CardContent>
-        <CardTitle className="px-4 text-center mt-6 font-semibold text-lg text-nuutext">
+        <CardTitle className="px-4 text-center mt-6 font-semibold text-lg text-yellow-400">
           Your Position : {userPosition}/{totalUsers}
         </CardTitle>
       </CardContent>
       <CardContent>
-        <div className="bg-background p-2 w-full mx-auto rounded-lg shadow-none">
-          <Table className="">
+        <div className="bg-black p-2 w-full mx-auto rounded-lg shadow-none">
+          <Table className="bg-black">
             <TableHeader>
-              <TableRow>
-                <TableHead>Place</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Invited Count</TableHead>
-                <TableHead>Points</TableHead>
+              <TableRow className="border-b border-yellow-400/20">
+                <TableHead className="text-yellow-400">Place</TableHead>
+                <TableHead className="text-yellow-400">User</TableHead>
+                <TableHead className="text-yellow-400">Invited Count</TableHead>
+                <TableHead className="text-yellow-400">Points</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentData.map((entry: LeaderboardEntry, index: number) => (
                 <TableRow
                   key={entry.id}
-                  className={
-                    entry.id === loggedInUser?.id ? "bg-[#91A267]" : ""
-                  }
+                  className={`border-b border-gray-800 hover:bg-black/50 ${
+                    entry.id === loggedInUser?.id ? "bg-yellow-400/10" : ""
+                  }`}
                 >
-                  <TableCell>
-                    {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
-                  </TableCell>
-                  <TableCell>{entry.user}</TableCell>
-                  <TableCell>{entry.invitedCount}</TableCell>
-                  <TableCell>{entry.points}</TableCell>
+                  <TableCell className="text-white">{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</TableCell>
+                  <TableCell className="text-white">{entry.user}</TableCell>
+                  <TableCell className="text-white">{entry.invitedCount}</TableCell>
+                  <TableCell className="text-yellow-400 font-bold">{entry.points}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

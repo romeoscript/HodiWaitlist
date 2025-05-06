@@ -76,7 +76,7 @@ export default function Header() {
             <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-75 group-hover:opacity-100 blur group-hover:blur-md transition-all duration-300"></div>
             <div className="relative">
               <img
-                src="/images/Sprout-Logo.png"
+                src="/images/Logo.jpg"
                 alt="Logo"
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 hover:scale-110 transition-transform duration-300"
               />
@@ -94,7 +94,7 @@ export default function Header() {
               <span>
                 {userPoints < 5000 ? "Rookie" : 
                  userPoints < 20000 ? "Street Cat" :
-                 userPoints < 50000 ? "Capo" : "Kingpin"}
+                 userPoints < 50000 ? "Capo" : "Big Boss "}
               </span>
             </motion.div>
           </div>
