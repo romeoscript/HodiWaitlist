@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { useToast } from "./ui/use-toast";
 import { motion } from "framer-motion";
 import { CheckCircle2, Lock, Zap } from "lucide-react";
-import { savePrincipalId } from "@/app/actions";
+import { savePrincipalId, fetchAccount } from "@/app/actions";
 
 // HODI token mint address (replace with the actual mint address)
 const HODI_TOKEN_MINT = new PublicKey("GHT5rrrAh5PxAxfP7vB3VnjPxeoxnVVDBVVQrgaVvbQ4");
@@ -28,10 +28,13 @@ const HodiWalletConnect = ({ isDisabled, onWalletConnectSuccess }) => {
   const [awardedPoints, setAwardedPoints] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const initialLoadComplete = useRef(false);
+  const storedPublicKey = useRef(null);
 
   // Function to get HODI token balance
   const getTokenBalance = async (walletAddress) => {
     try {
+      console.log("Getting balance for:", walletAddress.toString());
       // Connect to Solana blockchain
       const connection = new Connection(
         process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || "https://api.devnet.solana.com",
@@ -47,9 +50,11 @@ const HodiWalletConnect = ({ isDisabled, onWalletConnectSuccess }) => {
       // If token accounts exist, get the balance
       if (tokenAccounts.value.length > 0) {
         const balance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount.uiAmount;
+        console.log("Found balance:", balance);
         return balance;
       }
       
+      console.log("No token accounts found, returning 0");
       return 0;
     } catch (error) {
       console.error("Error fetching token balance:", error);
@@ -58,7 +63,7 @@ const HodiWalletConnect = ({ isDisabled, onWalletConnectSuccess }) => {
   };
   
   // Calculate points based on token balance
-  const calculatePoints = (balance) => {
+  const calculatePoints = (balance: any) => {
     for (const tier of HODI_POINT_TIERS) {
       if (balance >= tier.min && balance <= tier.max) {
         return tier.points;
@@ -67,52 +72,183 @@ const HodiWalletConnect = ({ isDisabled, onWalletConnectSuccess }) => {
     return 0;
   };
 
+  // Single combined effect to handle wallet data loading, connection and updates
   useEffect(() => {
-    const handleWalletConnection = async () => {
-      if (connected && publicKey && !isWalletConnected) {
+    let cancelled = false;
+    let intervalId: NodeJS.Timeout | null = null;
+    
+    const loadWalletData = async () => {
+      if (cancelled) return;
+      
+      try {
         setIsLoading(true);
+        const account = await fetchAccount();
+        console.log("Fetched account:", account);
         
-        try {
-          // Get token balance
-          const balance = await getTokenBalance(publicKey);
-          setTokenBalance(balance);
-          
-          // Calculate points based on balance
-          const points = calculatePoints(balance);
-          setAwardedPoints(points);
-          
-          // Save wallet connection and awarded points to backend
-          const success = await savePrincipalId(publicKey.toString(), points);
-          
-          if (success) {
-            setIsWalletConnected(true);
-            
-            toast({
-              title: "Wallet Connected Successfully",
-              description: `Your wallet has $${balance.toLocaleString()} HODI tokens - awarded ${points.toLocaleString()} points!`,
-            });
-            
-            // Callback to parent component
-            onWalletConnectSuccess(points);
-          }
-        } catch (error) {
-          console.error("Wallet connection error:", error);
-          toast({
-            title: "Error",
-            description: "Failed to connect your wallet and check token balance.",
-          });
-        } finally {
+        if (!account) {
+          console.log("No account found");
           setIsLoading(false);
+          return;
         }
-      } else if (!connected) {
+        
+        // Handle already connected wallet from database
+        if (account.principal_id && !connected) {
+          console.log("Account has principal_id but wallet not connected in UI:", account.principal_id);
+          try {
+            const walletPublicKey = new PublicKey(account.principal_id);
+            storedPublicKey.current = walletPublicKey;
+            
+            if (cancelled) return;
+            
+            const balance = await getTokenBalance(walletPublicKey);
+            console.log("Initial balance from stored wallet:", balance);
+            
+            if (cancelled) return;
+            
+            setTokenBalance(balance);
+            setAwardedPoints(calculatePoints(balance));
+            setIsWalletConnected(true);
+            initialLoadComplete.current = true;
+          } catch (error) {
+            console.error("Error processing stored wallet:", error);
+          } finally {
+            if (!cancelled) setIsLoading(false);
+          }
+          return;
+        }
+        
+        // Handle case where wallet is connected in UI
+        if (connected && publicKey) {
+          console.log("Wallet connected in UI:", publicKey.toString());
+          
+          // Check if this wallet is already associated with account
+          if (account.principal_id === publicKey.toString()) {
+            console.log("Wallet already associated with account");
+            
+            if (cancelled) return;
+            
+            const balance = await getTokenBalance(publicKey);
+            console.log("Balance for connected wallet:", balance);
+            
+            if (cancelled) return;
+            
+            setTokenBalance(balance);
+            setAwardedPoints(calculatePoints(balance));
+            setIsWalletConnected(true);
+            initialLoadComplete.current = true;
+            
+            if (!cancelled) setIsLoading(false);
+            return;
+          }
+          
+          // Handle new wallet connection
+          if (!isWalletConnected && !initialLoadComplete.current) {
+            console.log("New wallet connection, getting balance");
+            
+            if (cancelled) return;
+            
+            const balance = await getTokenBalance(publicKey);
+            console.log("Balance for new wallet:", balance);
+            
+            if (cancelled) return;
+            
+            const points = calculatePoints(balance);
+            setTokenBalance(balance);
+            setAwardedPoints(points);
+            
+            // Save wallet address and award points
+            if (!account.principal_id) {
+              console.log("Saving new principal ID and awarding points");
+              const success = await savePrincipalId(publicKey.toString(), points);
+              
+              if (cancelled) return;
+              
+              if (success) {
+                setIsWalletConnected(true);
+                initialLoadComplete.current = true;
+                
+                toast({
+                  title: "Wallet Connected Successfully",
+                  description: `Your wallet has ${balance.toLocaleString()} HODI tokens - awarded ${points.toLocaleString()} points!`,
+                });
+                
+                onWalletConnectSuccess(points);
+              }
+            } else {
+              // Wallet already exists but different from current connection
+              setIsWalletConnected(true);
+              initialLoadComplete.current = true;
+              onWalletConnectSuccess(0);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error in loadWalletData:", error);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    };
+    
+    // Function to periodically update balance
+    const setupBalanceUpdates = () => {
+      if ((connected && publicKey && isWalletConnected) || 
+          (isWalletConnected && storedPublicKey.current)) {
+        
+        const updateBalance = async () => {
+          if (cancelled) return;
+          
+          try {
+            const walletToCheck = publicKey || storedPublicKey.current;
+            if (!walletToCheck) return;
+            
+            const balance = await getTokenBalance(walletToCheck);
+            console.log("Periodic balance update:", balance);
+            
+            if (cancelled) return;
+            
+            setTokenBalance(balance);
+            setAwardedPoints(calculatePoints(balance));
+          } catch (error) {
+            console.error("Error updating balance:", error);
+          }
+        };
+        
+        // Update balance right away and then periodically
+        updateBalance();
+        intervalId = setInterval(updateBalance, 60000);
+      }
+    };
+    
+    // Main execution flow
+    const initialize = async () => {
+      await loadWalletData();
+      if (!cancelled) setupBalanceUpdates();
+    };
+    
+    initialize();
+    
+    // Cleanup function
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [connected, publicKey, onWalletConnectSuccess, toast]);
+  
+  // Handle disconnection
+  useEffect(() => {
+    if (!connected && initialLoadComplete.current) {
+      // Only reset UI state, not the database connection
+      // This allows showing balance even when wallet UI is disconnected
+      if (storedPublicKey.current) {
+        console.log("Wallet disconnected in UI but we have stored wallet");
+      } else {
+        console.log("Wallet fully disconnected");
         setIsWalletConnected(false);
         setTokenBalance(0);
         setAwardedPoints(0);
       }
-    };
-
-    handleWalletConnection();
-  }, [connected, publicKey, onWalletConnectSuccess, toast]);
+    }
+  }, [connected]);
 
   return (
     <div className="flex items-center">

@@ -220,41 +220,16 @@ export default function TasksTab() {
     setTimeout(() => setShowReward(false), 3000);
   };
 
-  // Handle Solana wallet connection
   useEffect(() => {
-    const handleWalletConnection = async () => {
-      if (connected && publicKey) {
-        setIsLoading(true);
-        try {
-          const success = await savePrincipalId(publicKey.toString());
-          if (success) {
-            const wasAlreadyConnected = isSolanaWalletConnected;
-            setIsSolanaWalletConnected(true);
+    if (connected && publicKey) {
+      setIsSolanaWalletConnected(true);
+    } else {
+      setIsSolanaWalletConnected(false);
+    }
+  }, [connected, publicKey]);
 
-            if (!wasAlreadyConnected) {
-              triggerRewardAnimation("Wallet connected! +200 points");
-              toast({
-                title: "Wallet Connected",
-                description: "Your Solana wallet has been successfully connected 🔥",
-              });
-            }
-          }
-        } catch (error) {
-          console.error("Solana Wallet connection error:", error);
-          toast({
-            title: "Error",
-            description: "Failed to connect your Solana wallet.",
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setIsSolanaWalletConnected(false);
-      }
-    };
 
-    handleWalletConnection();
-  }, [connected, publicKey, toast]);
+
 
   // Setup the share text
   const shareText = `Just joined the NFT waitlist 🎨
