@@ -228,19 +228,18 @@ export default function TasksTab() {
     }
   }, [connected, publicKey]);
 
+  // Handle Solana wallet connection
 
 
+const shareText = `Just joined the NFT waitlist 🎨
 
-  // Setup the share text
-  const shareText = `Just joined the NFT waitlist 🎨
-
-• Limited collection with real utility
-• Backed by a strong community
-• Early access to mint
-• Exclusive NFT rewards
+- Limited collection with real utility
+- Backed by a strong community
+- Early access to mint
+- Exclusive NFT rewards
 
 Join me on the waitlist & earn points with my referral link:
-https://nft.xyz/?ref=${userData?.invitation_code}`;
+${process.env.NEXT_PUBLIC_URL || "https://nft.xyz"}/?ref=${userData?.invitation_code}`;
 
   const shareOnTwitter = () => {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -737,7 +736,7 @@ https://nft.xyz/?ref=${userData?.invitation_code}`;
                   <Input
                     id="link-input"
                     type="text"
-                    defaultValue={`https://nft.xyz/?ref=${userData?.invitation_code}`}
+                    defaultValue={`${process.env.NEXT_PUBLIC_URL}/?ref=${userData?.invitation_code}`}
                     readOnly
                     className="bg-gray-800 border-gray-700 text-white rounded-lg sm:rounded-l-lg sm:rounded-r-none text-xs sm:text-sm mb-2 sm:mb-0"
                   />

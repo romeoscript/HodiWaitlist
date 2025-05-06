@@ -21,7 +21,12 @@ const HODI_POINT_TIERS = [
   { min: 2500000, max: Infinity, points: 50000 }
 ];
 
-const HodiWalletConnect = ({ isDisabled, onWalletConnectSuccess }) => {
+interface HodiWalletConnectProps {
+  isDisabled: boolean;
+  onWalletConnectSuccess: (points: number) => void;
+}
+
+const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWalletConnectSuccess }) => {
   const { publicKey, connected } = useWallet();
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(0);
@@ -29,10 +34,10 @@ const HodiWalletConnect = ({ isDisabled, onWalletConnectSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const initialLoadComplete = useRef(false);
-  const storedPublicKey = useRef(null);
+  const storedPublicKey = useRef<PublicKey | null>(null);
 
   // Function to get HODI token balance
-  const getTokenBalance = async (walletAddress) => {
+  const getTokenBalance = async (walletAddress: PublicKey): Promise<number> => {
     try {
       console.log("Getting balance for:", walletAddress.toString());
       // Connect to Solana blockchain
