@@ -179,10 +179,12 @@ export async function fetchPrincipalId() {
   }
 }
 
-export async function savePrincipalId(principalId: string) {
+// In your /app/actions.ts file:
+export async function savePrincipalId(principalId: string, points: number = 0) {
   const { user, error } = await getAuthenticatedUser();
   if (error || !user) return null;
 
+  // Fetch existing account
   const { data: existingAccount, error: fetchError } = await serviceSupabase
     .from("accounts")
     .select("principal_id, invited_by_account_id, total_points")
@@ -194,9 +196,16 @@ export async function savePrincipalId(principalId: string) {
     return false;
   }
 
+  // Calculate points to award based on HODI holdings
+  const pointsToAward = points > 0 ? points : PLUG_WALLET_POINTS;
+
+  // Update account with the principal ID and awarded points
   const { error: updateError } = await serviceSupabase
     .from("accounts")
-    .update({ principal_id: principalId, total_points: existingAccount.total_points + PLUG_WALLET_POINTS})
+    .update({ 
+      principal_id: principalId, 
+      total_points: existingAccount.total_points + pointsToAward
+    })
     .eq("id", user.id);
 
   if (updateError) {
@@ -204,47 +213,57 @@ export async function savePrincipalId(principalId: string) {
     return false;
   }
 
-  if (!existingAccount.principal_id) {
+  // Add points record if this is a new connection or if holdings-based points are awarded
+  if (!existingAccount.principal_id || points > 0) {
+    const note = points > 0 
+      ? `Connected wallet with ${points} HODI holding bonus` 
+      : "MetaMask Wallet Connection";
+
     const { error: pointsInsertError } = await serviceSupabase
       .from("points")
       .insert({
         account_id: user.id,
-        amount: PLUG_WALLET_POINTS,
-        note: "MetaMask Wallet Connection",
+        amount: pointsToAward,
+        note: note,
       });
 
     if (pointsInsertError) {
-      console.error(
-        "Error inserting points for MetaMask Wallet connection",
-        pointsInsertError
-      );
+      console.error("Error inserting points", pointsInsertError);
       return false;
     }
 
+    // Award referrer points if applicable
     if (existingAccount.invited_by_account_id) {
-      const { error: inviterPointsError } = await serviceSupabase
-        .from("points")
-        .insert({
-          account_id: existingAccount.invited_by_account_id,
-          amount: PLUG_WALLET_POINTS / 10,
-          note: "Referral MetaMask Wallet Connection",
-        });
+      // Get referrer's account
+      const { data: invitingAccount, error: fetchInvitingError } = await serviceSupabase
+        .from("accounts")
+        .select("total_points")
+        .eq("id", existingAccount.invited_by_account_id)
+        .single();
+
+      if (!fetchInvitingError && invitingAccount) {
+        // Calculate referrer bonus (10% of points)
+        const referrerBonus = Math.floor(pointsToAward / 10);
+        
+        // Add points to referrer
+        const { error: increaseInviterPointsError } = await serviceSupabase
+          .from("accounts")
+          .update({
+            total_points: invitingAccount.total_points + referrerBonus,
+          })
+          .eq("id", existingAccount.invited_by_account_id);
+
+        // Record the referrer bonus
+        await serviceSupabase
+          .from("points")
+          .insert({
+            account_id: existingAccount.invited_by_account_id,
+            amount: referrerBonus,
+            note: "Referral HODI Holdings Bonus",
+          });
+      }
     }
   }
-
-  const { data: invitingAccount, error: fetchinvitingError } = await serviceSupabase
-  .from("accounts")
-  .select("total_points")
-  .eq("id", existingAccount.invited_by_account_id)
-  .single();
-
-
- const { error: increaseInviterPointsError } = await serviceSupabase
-  .from("accounts")
-  .update({
-    total_points: invitingAccount?.total_points + PLUG_WALLET_POINTS/10,
-  })
-  .eq("id", existingAccount.invited_by_account_id);
 
   return true;
 }
