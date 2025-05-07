@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Lock, Zap } from "lucide-react";
 import { savePrincipalId, fetchAccount } from "@/app/actions";
 
-// HODI token mint address (replace with the actual mint address)
+// HODI token mint address
 const HODI_TOKEN_MINT = new PublicKey("HodiZE88VH3SvRYYX2fE6zYE6SsxPn9xJUMUkW1Dg6A");
 
 // Define point structure based on token amounts
@@ -20,6 +20,21 @@ const HODI_POINT_TIERS = [
   { min: 1250000, max: 2499999, points: 20000 },
   { min: 2500000, max: Infinity, points: 50000 }
 ];
+
+// Create a reusable function to get a connection with proper error handling
+const getSolanaConnection = () => {
+  // Primary connection - use Helius RPC endpoint
+  const rpcEndpoint = process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || 
+                      "https://rpc.helius.xyz/?api-key=81ecc4f5-fda6-4158-9a3f-b898e300d2e6";
+  
+  try {
+    return new Connection(rpcEndpoint, "confirmed");
+  } catch (error) {
+    console.error("Error creating Solana connection:", error);
+    // Fallback connection if primary fails
+    return new Connection("https://api.mainnet-beta.solana.com", "confirmed");
+  }
+};
 
 interface HodiWalletConnectProps {
   isDisabled: boolean;
@@ -35,36 +50,74 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
   const { toast } = useToast();
   const initialLoadComplete = useRef(false);
   const storedPublicKey = useRef<PublicKey | null>(null);
+  const connectionRetries = useRef(0);
+  const MAX_RETRIES = 3;
 
-  // Function to get HODI token balance
+  // Function to get HODI token balance with retries
   const getTokenBalance = async (walletAddress: PublicKey): Promise<number> => {
-    try {
-      console.log("Getting balance for:", walletAddress.toString());
-      // Connect to Solana blockchain
-      const connection = new Connection(
-        process.env.NEXT_PUBLIC_SOLANA_RPC_ENDPOINT || "https://api.mainnet-beta.solana.com",
-        "confirmed"
-      );
-      
-      // Get all token accounts for the user
-      const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-        walletAddress,
-        { mint: HODI_TOKEN_MINT }
-      );
-      
-      // If token accounts exist, get the balance
-      if (tokenAccounts.value.length > 0) {
-        const balance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount.uiAmount;
-        console.log("Found balance:", balance);
-        return balance;
+    let retryCount = 0;
+    
+    while (retryCount <= MAX_RETRIES) {
+      try {
+        console.log(`Getting balance for: ${walletAddress.toString()} (attempt ${retryCount + 1})`);
+        
+        // Get connection
+        const connection = getSolanaConnection();
+        
+        // Get all token accounts for the user
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+          walletAddress,
+          { mint: HODI_TOKEN_MINT }
+        );
+        
+        // Reset connection retries on success
+        connectionRetries.current = 0;
+        
+        // If token accounts exist, get the balance
+        if (tokenAccounts.value.length > 0) {
+          const balance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount.uiAmount;
+          console.log("Found balance:", balance);
+          return balance;
+        }
+        
+        console.log("No token accounts found, returning 0");
+        return 0;
+      } catch (error) {
+        retryCount++;
+        connectionRetries.current++;
+        
+        // Log error details
+        if (error instanceof Error) {
+          console.error(`Error fetching token balance (attempt ${retryCount}):`, error.message);
+          
+          // If we got a 403 error, it's likely an RPC issue
+          if (error.message.includes("403") || error.message.includes("forbidden")) {
+            console.error("RPC access forbidden. Check your API key or RPC endpoint.");
+          }
+        } else {
+          console.error(`Unknown error fetching token balance (attempt ${retryCount}):`, error);
+        }
+        
+        if (retryCount <= MAX_RETRIES) {
+          // Exponential backoff: wait longer between each retry
+          const backoffMs = Math.min(1000 * Math.pow(2, retryCount), 10000);
+          console.log(`Retrying in ${backoffMs}ms...`);
+          await new Promise(resolve => setTimeout(resolve, backoffMs));
+        } else {
+          console.error(`Failed to fetch token balance after ${MAX_RETRIES} retries.`);
+          // Show toast notification about connection issues if we've had multiple failures
+          if (connectionRetries.current >= MAX_RETRIES * 2) {
+            toast({
+              title: "Connection Issues",
+              description: "Having trouble connecting to the Solana network. Please try again later.",
+            });
+            connectionRetries.current = 0; // Reset to avoid repeated notifications
+          }
+          return 0;
+        }
       }
-      
-      console.log("No token accounts found, returning 0");
-      return 0;
-    } catch (error) {
-      console.error("Error fetching token balance:", error);
-      return 0;
     }
+    return 0;
   };
   
   // Calculate points based on token balance
