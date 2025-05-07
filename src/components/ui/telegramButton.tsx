@@ -10,7 +10,7 @@ interface TelegramButtonProps {
 
 const TelegramButton: React.FC<TelegramButtonProps> = ({ isDisabled, onFollowSuccess }) => {
   const handleFollowClick = async () => {
-    window.open('https://t.me/+08Nhs768JHJjZWFh', '_blank');
+    window.open('https://t.me/hodicoin', '_blank');
     const success = await TelegramPoints();
     if (success) {
       onFollowSuccess();
@@ -61,7 +61,7 @@ const TelegramIIButton: React.FC<TelegramButtonProps> = ({ isDisabled, onFollowS
         height={24}
         className="mr-2"
       />
-      <span>Subscribe to Telegram Channel</span>
+      <span>Join Telegram Channel</span>
     </Button>
   );
 };

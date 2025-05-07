@@ -10,7 +10,7 @@ interface DiscordButtonProps {
 
 const DiscordButton: React.FC<DiscordButtonProps> = ({ isDisabled, onFollowSuccess }) => {
   const handleFollowClick = async () => {
-    window.open('https://discord.gg/CqdnWc989A', '_blank');
+    window.open('https://discord.gg/CbGPAur6bK', '_blank');
     const success = await discordPoints();
     if (success) {
       onFollowSuccess();
@@ -32,7 +32,7 @@ const DiscordButton: React.FC<DiscordButtonProps> = ({ isDisabled, onFollowSucce
         height={24}
         className="mr-2"
       />
-      <span>Join to our Discord</span>
+      <span> Join our Discord</span>
     </Button>
   );
 };

@@ -270,7 +270,7 @@ https://citizens.sproutmarketing.xyz/?ref=${userData?.invitation_code}`;
       await setIsTwitterIIIFollowed(
         fetchedPointsList?.some(
           // (point) => point.note === "Follow Galaxy.do on Twitter"
-          (point) => point.note === "Follow Cat Cartel on Twitter"
+          (point) => point.note === "Follow Kev the Dev on X"
         ) || false
       );
       await setIsDiscordJoined(

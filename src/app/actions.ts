@@ -279,7 +279,7 @@ export async function fetchTwitterFollowed() {
     .from("points")
     .select("note")
     .eq("account_id", user.id)
-    .eq("note", "Follow Sprout Citizens on Twitter");
+    .eq("note", "Follow $HODI on Twitter");
 
   if (fetchError) {
     console.error("Error fetching note", error);
@@ -296,7 +296,7 @@ export async function fetchTwitterIIFollowed() {
     .from("points")
     .select("note")
     .eq("account_id", user.id)
-    .eq("note", "Follow $HODI on Twitter");
+    .eq("note", "Subscribe to our youtube channel");
 
   if (fetchError) {
     console.error("Error fetching note", error);
@@ -313,7 +313,7 @@ export async function fetchTwitterIIIFollowed() {
     .from("points")
     .select("note")
     .eq("account_id", user.id)
-    .eq("note", "Follow Cat Cartel on Twitter");
+    .eq("note", "Follow Kev the Dev on X");
 
   if (fetchError) {
     console.error("Error fetching note", error);
@@ -425,7 +425,7 @@ export async function twitterIIPoints() {
     .insert({
       account_id: user.id,
       amount: TWITTER_FOLLOW_POINTS,
-      note: "Follow Cat Cartel on Twitter",
+      note: "Subscribe to our youtube channel",
     });
   
     const { error: increasePointsError } = await serviceSupabase
@@ -450,7 +450,7 @@ export async function twitterIIPoints() {
       .insert({
         account_id: existingAccount.invited_by_account_id,
         amount: TWITTER_FOLLOW_POINTS / 10,
-        note: "Referral Twitter Follow",
+        note: "Subscribe to our youtube channel",
       });
   }
 
@@ -500,7 +500,7 @@ export async function twitterIIIPoints() {
     .insert({
       account_id: user.id,
       amount: TWITTER_FOLLOW_POINTS,
-      note: "Follow Cat Cartel on Twitter",
+      note: "Follow Kev the Dev on X",
     });
   
     const { error: increasePointsError } = await serviceSupabase

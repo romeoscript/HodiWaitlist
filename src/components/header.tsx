@@ -76,7 +76,7 @@ export default function Header() {
             <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 opacity-75 group-hover:opacity-100 blur group-hover:blur-md transition-all duration-300"></div>
             <div className="relative">
               <img
-                src="/images/Logo.jpg"
+                src="/images/logo.jpg"
                 alt="Logo"
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-yellow-400 hover:scale-110 transition-transform duration-300"
               />

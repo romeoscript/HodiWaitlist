@@ -15,7 +15,7 @@ const TwitterButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSucce
 
   const handleFollowClick = async () => {
     setIsProcessing(true);
-    window.open('https://twitter.com/intent/follow?screen_name=hoditoken', '_blank');
+    window.open('https://twitter.com/intent/follow?screen_name=catcartel_xyz', '_blank');
     
     try {
       const success = await twitterPoints();
@@ -62,7 +62,7 @@ const TwitterButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSucce
             height={16}
             className="mr-2"
           />
-          <span>Follow on X/Twitter</span>
+          <span>Follow $HODI on X</span>
         </>
       )}
     </Button>
@@ -70,35 +70,13 @@ const TwitterButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSucce
 };
 
 const TwitterIIButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSuccess }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { toast } = useToast();
 
   const handleFollowClick = async () => {
+    window.open('https://www.youtube.com/@kevthecryptodev?sub_confirmation=1', '_blank');
    
-    setIsProcessing(true);
-    window.open('https://twitter.com/intent/follow?screen_name=catcartel_xyz', '_blank');
-    
-    try {
-      const success = await twitterIIPoints();
-      if (success) {
-        toast({
-          title: "Success!",
-          description: "You've earned 100 points for following HODI Founder! 🎉",
-        });
-        onFollowSuccess();
-      } else {
-        toast({
-          title: "Verification failed",
-          description: "Please make sure you followed the account and try again.",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-      });
-    } finally {
-      setIsProcessing(false);
+    const success = await twitterIIPoints();
+    if (success) {
+      onFollowSuccess();
     }
   };
 
@@ -110,20 +88,20 @@ const TwitterIIButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSuc
       variant={"specialAction"}
     >
       <Image
-        src="/images/twitter.png"
+        src="/images/youtube.png"
         alt="twitter"
         width={24}
         height={24}
         className="mr-2"
       />
-      <span>Follow $HODI on Twitter</span>
+      <span>Subscribe to our Youtube Channel</span>
     </Button>
   );
 };
 
 const TwitterIIIButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSuccess }) => {
   const handleFollowClick = async () => {
-    window.open('https://twitter.com/intent/follow?screen_name=Ares_Sprout', '_blank');
+    window.open('https://twitter.com/intent/follow?screen_name=KevTheCryptoDev', '_blank');
     const success = await twitterIIIPoints();
     if (success) {
       onFollowSuccess();
@@ -144,7 +122,7 @@ const TwitterIIIButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSu
         height={24}
         className="mr-2"
       />
-      <span>Follow Cat Cartel on Twitter</span>
+      <span>Follow Kev the Dev on X</span>
     </Button>
   );
 };

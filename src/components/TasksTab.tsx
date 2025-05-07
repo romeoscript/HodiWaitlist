@@ -143,7 +143,7 @@ export default function TasksTab() {
       setIsTwitterIIFollowed(!!followed);
 
       if (!wasAlreadyFollowed && followed) {
-        triggerRewardAnimation("$HODI Twitter follow completed! +100 points");
+        triggerRewardAnimation("subscribe completed! +100 points");
       }
     } finally {
       setIsLoading(false);
@@ -158,7 +158,7 @@ export default function TasksTab() {
       setIsTwitterIIIFollowed(!!followed);
 
       if (!wasAlreadyFollowed && followed) {
-        triggerRewardAnimation("Cat Cartel follow completed! +100 points");
+        triggerRewardAnimation("Kev the Dev  follow completed! +100 points");
       }
     } finally {
       setIsLoading(false);
@@ -284,13 +284,13 @@ ${process.env.NEXT_PUBLIC_URL || "https://nft.xyz"}/?ref=${userData?.invitation_
 
           setIsTwitterIIFollowed(
             fetchedPointsList.some(
-              (point) => point.note === "Follow Cat Cartel on Twitter"
+              (point) => point.note === "Subscribe to our youtube channel"
             ) || false
           );
 
           setIsTwitterIIIFollowed(
             fetchedPointsList.some(
-              (point) => point.note === "Follow Cat Cartel on Twitter"
+              (point) => point.note === "Follow Kev the Dev on X"
             ) || false
           );
 
