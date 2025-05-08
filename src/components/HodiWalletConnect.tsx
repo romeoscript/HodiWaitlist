@@ -5,7 +5,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { useToast } from "./ui/use-toast";
 import { motion } from "framer-motion";
 import { CheckCircle2, Lock, Zap } from "lucide-react";
-import { savePrincipalId, fetchAccount } from "@/app/actions";
+import { savePrincipalId, fetchAccount, updateWalletBalance } from "@/app/actions";
 
 // HODI token mint address
 const HODI_TOKEN_MINT = new PublicKey("HodiZE88VH3SvRYYX2fE6zYE6SsxPn9xJUMUkW1Dg6A");
@@ -36,6 +36,16 @@ const getSolanaConnection = () => {
   }
 };
 
+// Calculate points for a specific token balance
+const calculateTierPoints = (balance: number) => {
+  for (const tier of HODI_POINT_TIERS) {
+    if (balance >= tier.min && balance <= tier.max) {
+      return tier.points;
+    }
+  }
+  return 0;
+};
+
 interface HodiWalletConnectProps {
   isDisabled: boolean;
   onWalletConnectSuccess: (points: number) => void;
@@ -45,13 +55,17 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
   const { publicKey, connected } = useWallet();
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [tokenBalance, setTokenBalance] = useState(0);
-  const [awardedPoints, setAwardedPoints] = useState(0);
+  const [tierPoints, setTierPoints] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
   const initialLoadComplete = useRef(false);
   const storedPublicKey = useRef<PublicKey | null>(null);
+  const lastCheckedBalance = useRef<number>(0);
   const connectionRetries = useRef(0);
+  const lastPointUpdate = useRef<number>(Date.now());
   const MAX_RETRIES = 3;
+  const MIN_UPDATE_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
   // Function to get HODI token balance with retries
   const getTokenBalance = async (walletAddress: PublicKey): Promise<number> => {
@@ -119,15 +133,38 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
     }
     return 0;
   };
-  
-  // Calculate points based on token balance
-  const calculatePoints = (balance: any) => {
-    for (const tier of HODI_POINT_TIERS) {
-      if (balance >= tier.min && balance <= tier.max) {
-        return tier.points;
+
+  // Update database with new balance and get incremental points if applicable
+  const updateBalanceAndPoints = async (newBalance: number) => {
+    if (!userId) return;
+    
+    // Check if there's a significant enough balance change to update
+    const balanceChangePct = Math.abs((newBalance - lastCheckedBalance.current) / Math.max(lastCheckedBalance.current, 1));
+    const timeElapsed = Date.now() - lastPointUpdate.current;
+    
+    // Only update if:
+    // 1. Balance changed by at least 5% OR
+    // 2. It's been at least MIN_UPDATE_INTERVAL since the last update
+    if (balanceChangePct >= 0.05 || timeElapsed >= MIN_UPDATE_INTERVAL) {
+      console.log("Updating balance in database:", newBalance);
+      try {
+        const result = await updateWalletBalance(userId, newBalance);
+        
+        if (result && result.success && result.pointsAwarded > 0) {
+          // If we got new points, show a toast and update the local points state
+          toast({
+            title: "Points Awarded!",
+            description: `You've earned ${result.pointsAwarded.toLocaleString()} points for increasing your HODI tokens!`,
+          });
+        }
+        
+        // Update our local tracking
+        lastCheckedBalance.current = newBalance;
+        lastPointUpdate.current = Date.now();
+      } catch (error) {
+        console.error("Error updating balance and points:", error);
       }
     }
-    return 0;
   };
 
   // Single combined effect to handle wallet data loading, connection and updates
@@ -149,6 +186,14 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
           return;
         }
         
+        // Store the user ID for later use with updating points
+        setUserId(account.id);
+        
+        // Set the last checked balance from the database
+        if (account.last_token_balance) {
+          lastCheckedBalance.current = parseFloat(account.last_token_balance);
+        }
+        
         // Handle already connected wallet from database
         if (account.principal_id && !connected) {
           console.log("Account has principal_id but wallet not connected in UI:", account.principal_id);
@@ -164,9 +209,18 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
             if (cancelled) return;
             
             setTokenBalance(balance);
-            setAwardedPoints(calculatePoints(balance));
+            
+            // Calculate and set tier points based on current balance, not total points
+            const pointsForThisTier = calculateTierPoints(balance);
+            setTierPoints(pointsForThisTier);
+            
             setIsWalletConnected(true);
             initialLoadComplete.current = true;
+            
+            // Check if balance has changed and update points if needed
+            if (balance !== lastCheckedBalance.current) {
+              await updateBalanceAndPoints(balance);
+            }
           } catch (error) {
             console.error("Error processing stored wallet:", error);
           } finally {
@@ -191,9 +245,18 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
             if (cancelled) return;
             
             setTokenBalance(balance);
-            setAwardedPoints(calculatePoints(balance));
+            
+            // Calculate and set tier points based on current balance
+            const pointsForThisTier = calculateTierPoints(balance);
+            setTierPoints(pointsForThisTier);
+            
             setIsWalletConnected(true);
             initialLoadComplete.current = true;
+            
+            // Check if balance has changed and update points if needed
+            if (balance !== lastCheckedBalance.current) {
+              await updateBalanceAndPoints(balance);
+            }
             
             if (!cancelled) setIsLoading(false);
             return;
@@ -210,14 +273,15 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
             
             if (cancelled) return;
             
-            const points = calculatePoints(balance);
+            // For new connections, calculate the tier points
+            const pointsForThisTier = calculateTierPoints(balance);
             setTokenBalance(balance);
-            setAwardedPoints(points);
+            setTierPoints(pointsForThisTier);
             
             // Save wallet address and award points
             if (!account.principal_id) {
               console.log("Saving new principal ID and awarding points");
-              const success = await savePrincipalId(publicKey.toString(), points);
+              const success = await savePrincipalId(publicKey.toString(), balance);
               
               if (cancelled) return;
               
@@ -227,10 +291,10 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
                 
                 toast({
                   title: "Wallet Connected Successfully",
-                  description: `Your wallet has ${balance.toLocaleString()} HODI tokens - awarded ${points.toLocaleString()} points!`,
+                  description: `Your wallet has ${balance.toLocaleString()} HODI tokens - awarded ${pointsForThisTier.toLocaleString()} points!`,
                 });
                 
-                onWalletConnectSuccess(points);
+                onWalletConnectSuccess(pointsForThisTier);
               }
             } else {
               // Wallet already exists but different from current connection
@@ -264,8 +328,17 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
             
             if (cancelled) return;
             
+            // Update the UI with the new balance
             setTokenBalance(balance);
-            setAwardedPoints(calculatePoints(balance));
+            
+            // Calculate and set tier points based on current balance
+            const pointsForThisTier = calculateTierPoints(balance);
+            setTierPoints(pointsForThisTier);
+            
+            // Check for tier changes and update points in the database if needed
+            if (balance !== lastCheckedBalance.current) {
+              await updateBalanceAndPoints(balance);
+            }
           } catch (error) {
             console.error("Error updating balance:", error);
           }
@@ -273,7 +346,7 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
         
         // Update balance right away and then periodically
         updateBalance();
-        intervalId = setInterval(updateBalance, 60000);
+        intervalId = setInterval(updateBalance, 60000); // Check every minute
       }
     };
     
@@ -303,7 +376,7 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
         console.log("Wallet fully disconnected");
         setIsWalletConnected(false);
         setTokenBalance(0);
-        setAwardedPoints(0);
+        setTierPoints(0); // Reset tier points when disconnected
       }
     }
   }, [connected]);
@@ -361,7 +434,7 @@ const HodiWalletConnect: React.FC<HodiWalletConnectProps> = ({ isDisabled, onWal
       
       <div className="ml-2 sm:ml-4 flex items-center text-yellow-400 whitespace-nowrap">
         <Zap size={14} className="mr-1 sm:h-4 sm:w-4" />
-        <span className="font-bold text-xs sm:text-sm">{awardedPoints.toLocaleString()}</span>
+        <span className="font-bold text-xs sm:text-sm">{tierPoints.toLocaleString()}</span>
       </div>
     </div>
   );

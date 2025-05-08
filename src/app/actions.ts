@@ -179,7 +179,139 @@ export async function fetchPrincipalId() {
   }
 }
 
-export async function savePrincipalId(principalId: string, points: number = 0) {
+const HODI_POINT_TIERS = [
+  { min: 0, max: 24999, points: 0 },
+  { min: 25000, max: 74999, points: 750 },
+  { min: 75000, max: 249999, points: 2000 },
+  { min: 250000, max: 499999, points: 5000 },
+  { min: 500000, max: 1249999, points: 10000 },
+  { min: 1250000, max: 2499999, points: 20000 },
+  { min: 2500000, max: Infinity, points: 50000 }
+];
+
+
+
+// Helper function to get the tier for a specific balance
+export async function getBalanceTier(balance: number) {
+  for (const tier of HODI_POINT_TIERS) {
+    if (balance >= tier.min && balance <= tier.max) {
+      return tier;
+    }
+  }
+  return HODI_POINT_TIERS[0]; // Default to first tier if not found
+}
+
+// Fixed server action that handles decimal values
+export async function calculateIncrementalPoints(previousBalance: number, currentBalance: number) {
+  // If balance decreased, no new points
+  if (currentBalance <= previousBalance) {
+    return 0;
+  }
+
+  // Get the tiers for both balances
+  const previousTier = await getBalanceTier(previousBalance);
+  const currentTier = await getBalanceTier(currentBalance);
+
+  // Case 1: Stayed in the same tier
+  if (previousTier === currentTier) {
+    return 0; // No new points if staying in same tier
+  }
+
+  // Case 2: Moved up one or more tiers
+  // We need to calculate points for each tier crossed
+  let totalPoints = 0;
+  let currentTierIndex = HODI_POINT_TIERS.indexOf(currentTier);
+  let previousTierIndex = HODI_POINT_TIERS.indexOf(previousTier);
+
+  // For each tier crossed, add the difference in points
+  for (let i = previousTierIndex + 1; i <= currentTierIndex; i++) {
+    const tierPoints = HODI_POINT_TIERS[i].points;
+    const previousTierPoints = HODI_POINT_TIERS[i - 1].points;
+    totalPoints += tierPoints - previousTierPoints;
+  }
+
+  return totalPoints;
+}
+
+// Updated function that handles decimals by converting to string
+export async function updateWalletBalance(accountId: string, newBalance: number) {
+  // Fetch the user's current account info
+  const { data: existingAccount, error: fetchError } = await serviceSupabase
+    .from("accounts")
+    .select("last_token_balance, total_points")
+    .eq("id", accountId)
+    .single();
+
+  if (fetchError) {
+    console.error("Error fetching account:", fetchError);
+    return false;
+  }
+
+  // For database storage, store as string instead of numeric value
+  const balanceAsString = newBalance.toString();
+  
+  // For point calculations, use numeric value
+  const previousBalance = parseFloat(existingAccount.last_token_balance || "0");
+  const incrementalPoints = await calculateIncrementalPoints(previousBalance, newBalance);
+
+  // Only proceed if there are new points to award
+  if (incrementalPoints > 0) {
+    // Update the account with new balance and additional points
+    const { error: updateError } = await serviceSupabase
+      .from("accounts")
+      .update({
+        last_token_balance: balanceAsString,
+        total_points: existingAccount.total_points + incrementalPoints
+      })
+      .eq("id", accountId);
+
+    if (updateError) {
+      console.error("Error updating account balance and points:", updateError);
+      return false;
+    }
+
+    // Record the points transaction
+    const { error: pointsInsertError } = await serviceSupabase
+      .from("points")
+      .insert({
+        account_id: accountId,
+        amount: incrementalPoints,
+        note: `HODI Token Balance Increase (${previousBalance.toLocaleString()} → ${newBalance.toLocaleString()})`,
+      });
+
+    if (pointsInsertError) {
+      console.error("Error inserting points record:", pointsInsertError);
+      // Points added to account but record failed - not critical
+    }
+
+    return {
+      success: true,
+      pointsAwarded: incrementalPoints,
+      newTotalPoints: existingAccount.total_points + incrementalPoints
+    };
+  }
+
+  // Balance increased but not enough to change tiers, or balance decreased
+  // Just update the stored balance
+  const { error: updateBalanceError } = await serviceSupabase
+    .from("accounts")
+    .update({ last_token_balance: balanceAsString })
+    .eq("id", accountId);
+
+  if (updateBalanceError) {
+    console.error("Error updating account balance:", updateBalanceError);
+    return false;
+  }
+
+  return {
+    success: true,
+    pointsAwarded: 0,
+    newTotalPoints: existingAccount.total_points
+  };
+}
+
+// Fixed savePrincipalId function to handle decimals
+export async function savePrincipalId(principalId: string, initialBalance: number = 0) {
   const { user, error } = await getAuthenticatedUser();
   if (error || !user) return null;
 
@@ -202,14 +334,19 @@ export async function savePrincipalId(principalId: string, points: number = 0) {
   }
 
   // Calculate points to award based on HODI holdings
-  const pointsToAward = points > 0 ? points : PLUG_WALLET_POINTS;
+  const tier = await getBalanceTier(initialBalance);
+  const pointsToAward = tier.points > 0 ? tier.points : PLUG_WALLET_POINTS;
 
-  // Update account with the principal ID and awarded points
+  // Convert balance to string for storage
+  const balanceAsString = initialBalance.toString();
+
+  // Update account with the principal ID, awarded points, and initial balance
   const { error: updateError } = await serviceSupabase
     .from("accounts")
     .update({ 
       principal_id: principalId, 
-      total_points: existingAccount.total_points + pointsToAward
+      total_points: existingAccount.total_points + pointsToAward,
+      last_token_balance: balanceAsString
     })
     .eq("id", user.id);
 
@@ -218,9 +355,9 @@ export async function savePrincipalId(principalId: string, points: number = 0) {
     return false;
   }
 
-  // Add points record if this is a new connection 
-  const note = points > 0 
-    ? `Connected wallet with ${points} HODI holding bonus` 
+  // Add points record
+  const note = tier.points > 0 
+    ? `Connected wallet with ${initialBalance.toLocaleString()} HODI (${tier.points} points)` 
     : "MetaMask Wallet Connection";
 
   const { error: pointsInsertError } = await serviceSupabase
@@ -238,7 +375,6 @@ export async function savePrincipalId(principalId: string, points: number = 0) {
 
   // Award referrer points if applicable
   if (existingAccount.invited_by_account_id) {
-    // Get referrer's account
     const { data: invitingAccount, error: fetchInvitingError } = await serviceSupabase
       .from("accounts")
       .select("total_points")
