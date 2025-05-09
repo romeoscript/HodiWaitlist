@@ -19,7 +19,7 @@ const DiscordButton: React.FC<DiscordButtonProps> = ({ isDisabled, onFollowSucce
 
   return (
     <Button
-      className=" text-foreground p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
+      className=" p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
       onClick={handleFollowClick}
       disabled={isDisabled}
       variant={"specialAction"}

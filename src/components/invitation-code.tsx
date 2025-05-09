@@ -74,12 +74,12 @@ export default function InvitationCode({
               inputMode="text"
             >
               <InputOTPGroup>
-                <InputOTPSlot index={0} className="md:w-16 md:h-16 text-lg bg-yellow-400/10 border-yellow-400 text-yellow-400" />
-                <InputOTPSlot index={1} className="md:w-16 md:h-16 text-lg bg-yellow-400/10 border-yellow-400 text-yellow-400" />
-                <InputOTPSlot index={2} className="md:w-16 md:h-16 text-lg bg-yellow-400/10 border-yellow-400 text-yellow-400" />
-                <InputOTPSlot index={3} className="md:w-16 md:h-16 text-lg bg-yellow-400/10 border-yellow-400 text-yellow-400" />
-                <InputOTPSlot index={4} className="md:w-16 md:h-16 text-lg bg-yellow-400/10 border-yellow-400 text-yellow-400" />
-                <InputOTPSlot index={5} className="md:w-16 md:h-16 text-lg bg-yellow-400/10 border-yellow-400 text-yellow-400" />
+                <InputOTPSlot index={0} className="md:w-16 md:h-16 text-lg bg-black border-yellow-400 text-yellow-400" />
+                <InputOTPSlot index={1} className="md:w-16 md:h-16 text-lg bg-black border-yellow-400 text-yellow-400" />
+                <InputOTPSlot index={2} className="md:w-16 md:h-16 text-lg bg-black border-yellow-400 text-yellow-400" />
+                <InputOTPSlot index={3} className="md:w-16 md:h-16 text-lg bg-black border-yellow-400 text-yellow-400" />
+                <InputOTPSlot index={4} className="md:w-16 md:h-16 text-lg bg-black border-yellow-400 text-yellow-400" />
+                <InputOTPSlot index={5} className="md:w-16 md:h-16 text-lg bg-black border-yellow-400 text-yellow-400" />
               </InputOTPGroup>
             </InputOTP>
             <Button
@@ -101,7 +101,7 @@ export default function InvitationCode({
         <div className="text-sm text-yellow-400/80 text-center">
           Don&apos;t have an invitation code?{" "}
           <a
-            href="https://discord.gg/CqdnWc989A"
+            href="https://discord.gg/CbGPAur6bK"
             target="_blank"
             className="text-yellow-400 underline underline-offset-4 block md:inline-block hover:text-yellow-300 transition-colors"
           >

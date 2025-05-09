@@ -19,7 +19,7 @@ const TelegramButton: React.FC<TelegramButtonProps> = ({ isDisabled, onFollowSuc
 
   return (
     <Button
-      className=" text-foreground p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
+      className=" p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
       onClick={handleFollowClick}
       disabled={isDisabled}
       variant={"specialAction"}
@@ -48,7 +48,7 @@ const TelegramIIButton: React.FC<TelegramButtonProps> = ({ isDisabled, onFollowS
 
   return (
     <Button
-      className=" text-foreground p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
+      className="p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
       onClick={handleFollowClick}
       disabled={isDisabled}
       variant={"specialAction"}

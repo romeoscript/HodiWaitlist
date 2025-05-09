@@ -43,7 +43,7 @@ const TwitterButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSucce
 
   return (
     <Button
-      className="text-foreground p-2 text-center rounded-lg font-bold text-xs flex items-center justify-center"
+      className=" p-2 text-center rounded-lg font-bold text-xs flex items-center justify-center"
       onClick={handleFollowClick}
       disabled={isDisabled || isProcessing}
       variant={"specialAction"}
@@ -82,7 +82,7 @@ const TwitterIIButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSuc
 
   return (
     <Button
-      className="text-foreground p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
+      className="p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
       onClick={handleFollowClick}
       disabled={isDisabled}
       variant={"specialAction"}
@@ -110,7 +110,7 @@ const TwitterIIIButton: React.FC<TwitterButtonProps> = ({ isDisabled, onFollowSu
 
   return (
     <Button
-      className="text-foreground p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
+      className=" p-4 text-center rounded-lg font-bold text-sm flex items-center justify-center"
       onClick={handleFollowClick}
       disabled={isDisabled}
       variant={"specialAction"}
