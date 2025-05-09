@@ -1013,7 +1013,7 @@ ${process.env.NEXT_PUBLIC_URL || "https://nft.xyz"}/?ref=${userData?.invitation_
                       </li>
                       <li className="flex items-center">
                         <div className={`w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 rounded-full ${getCurrentLevel() >= 1 ? 'bg-yellow-400' : 'bg-gray-700'}`}></div>
-                        <span className={getCurrentLevel() >= 1 ? 'text-white' : 'text-white/50'}>Access to Cat Cartel Events</span>
+                        {/* <span className={getCurrentLevel() >= 1 ? 'text-white' : 'text-white/50'}>Access to Cat Cartel Events</span> */}
                       </li>
                     </ul>
                     {getCurrentLevel() >= 1 ? (
@@ -1103,7 +1103,7 @@ ${process.env.NEXT_PUBLIC_URL || "https://nft.xyz"}/?ref=${userData?.invitation_
                 </div>
               </motion.div>
 
-              <motion.div
+              {/* <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
@@ -1178,7 +1178,7 @@ ${process.env.NEXT_PUBLIC_URL || "https://nft.xyz"}/?ref=${userData?.invitation_
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </motion.div> */}
             </div>
           )}
 
