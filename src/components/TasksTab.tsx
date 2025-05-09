@@ -1011,10 +1011,7 @@ ${process.env.NEXT_PUBLIC_URL || "https://nft.xyz"}/?ref=${userData?.invitation_
                         <div className={`w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 rounded-full ${getCurrentLevel() >= 1 ? 'bg-yellow-400' : 'bg-gray-700'}`}></div>
                         <span className={getCurrentLevel() >= 1 ? 'text-white' : 'text-white/50'}>Guaranteed Whitelist</span>
                       </li>
-                      <li className="flex items-center">
-                        <div className={`w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 rounded-full ${getCurrentLevel() >= 1 ? 'bg-yellow-400' : 'bg-gray-700'}`}></div>
-                        {/* <span className={getCurrentLevel() >= 1 ? 'text-white' : 'text-white/50'}>Access to Cat Cartel Events</span> */}
-                      </li>
+                      
                     </ul>
                     {getCurrentLevel() >= 1 ? (
                       <div className="mt-3 sm:mt-4 text-yellow-400 text-[10px] sm:text-sm font-bold flex items-center">
